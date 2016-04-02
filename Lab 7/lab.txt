@@ -1,0 +1,86 @@
+Name: Jahan Kuruvilla Cherian
+UID: 104436427
+Email: jcherian@ucla.edu
+Professor: Eggert
+TA: Lauren Samy
+File - lab.txt - A file describing the steps taken in the lab and the reasons
+behind them.
+
+We created two programs to mimic the tr command with two parameters 'from' and
+'to' while taking in input from stdin. The difference between the programs are
+one uses getchar and putchar using buffered I/O while tr2u uses read and write
+using direct syscalls.
+
+The programs were written almost exactly the same, using the same error checks 
+to make sure the number of arguments are only from and to, from doesnt have
+duplicates and from and to have the same length.
+
+We then simply use getchar/read to take in one byte at a time compare it
+to any of the characters in our from array and if so, putchar/write the 
+corresponding to character, else just write the normal character. This 
+effectively does a transliteration.
+
+We then run strace and time on two conditions for these programs to test their
+relative efficiencies.
+We use the following command to produce a file that is atleast 5 MB as defined
+by the spec for testing purposes:
+dd if=/dev/urandom of=reallybig.txt bs=1M count=5
+
+We start with running the strace command for copying one file to another, and
+use wc -l to get an approximate number of syscalls made from the output file
+we put the strace output into. 
+
+strace -o strace_output0 ./tr2b abc def < reallybig.txt > bufCop.txt
+wc -l gives us 31 lines which is close to 31 syscalls made by the buffered
+program while copying from one file to another.
+
+strace -o strace_output1 ./tr2u abc def < reallybig.txt > unbufCop.txt
+wc -l gives us 10485786 lines which is significantly more syscalls we see
+being made. This is because for each byte there are two syscalls made using 
+read and write, but with getchar and putchar, the information is stored
+in a buffer and then fewer syscalls are made fewer times.
+
+strace -o strace_output2 ./tr2b abc def < reallybig.txt
+wc -l gives us 33 syscalls approximately for copying directly to the terminal
+and printing out to stdout, using getchar and putchar
+
+strace -o strace_output3 ./tr2u abc def < reallybig.txt
+wc -l gives us 10485793 syscalls approximately for copying to the terminal
+using read and write.
+
+We notice that once again the buffered version makes far fewer syscalls to 
+the unbuffered version for the same reasons - the buffer I/O. But we notice
+that the number of syscalls when copying to the terminal is more than the
+corresponding command for just copying because now the program needs the
+ability to print to the screen for which it needs access to the I/O
+devices which require more syscalls.
+
+We then test efficiency using the time command under the same conditions as
+before - copying from one file to another and then copying to the terminal.
+The commands and their results are given below:
+
+time ./tr2b abc def < reallybig.txt > bufCop.txt
+real	0m0.004s
+user	0m0.001s
+sys		0m0.000s
+
+time ./tr2u abc def < reallybig.txt > unbufCop.txt
+real	0m6.035s
+user	0m0.371s
+sys		0m5.589s
+
+time ./tr2b abc def < reallybig.txt
+real	0m0.002s
+user	0m0.000s
+sys		0m0.001s
+
+time ./tr2u abc def < reallybig.txt
+seal	0m10.804s
+user	0m0.392s
+sys		0m5.467s
+
+
+The conclusion we can make is that getchar and putchar are significantly
+faster than read and write because of the use of buffers to perform 
+fewer syscalls; and that writing to the stdout (copying to terminal) is
+slightly longer as it reqiures a few more syscalls.

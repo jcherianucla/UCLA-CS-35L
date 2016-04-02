@@ -1,0 +1,57 @@
+Name: Jahan Kuruvilla Cherian
+UID: 104436427
+Email: jcherian@ucla.edu
+Professor: Eggert
+TA: Lauren Samy
+File - log.txt - A file describing the steps taken in the lab and the reasons
+behind them.
+
+We first make sure our sort version is up to date which is 8.25.
+
+We begin the lab by creating a file called big with 10,000,000 double
+numbers on a new line each. We do this using od (object dump) with the
+-tf option for floating point, -N 80000000 for 10,000,000 numbers, since
+-N takes the number of bytes, and each double is 8 bytes. We have to
+however format it to remove the addresses using sed 's/^[0-7]* *//' to
+remove all octal numbers and spaces from the start and then tr from ' '
+to '\n' to put it all on newlines.
+
+od -tf -N 80000000 < /dev/urandom | sed 's/^[0-7]* *//' | tr -s ' ' '\n'
+
+We then begin to time the sorting with -g for general number sorting
+and send the output to /dev/null and time to time the process.
+
+time -p sort -g big > /dev/null
+real 39.35
+user 217.14
+sys 0.55
+
+time -p sort -g --parallel=1 big > /dev/null
+real 188.31
+user 188.08
+sys 0.23
+
+time -p sort -g --parallel=2 big > /dev/null
+real 96.12
+user 183.68
+sys 0.35
+
+time -p sort -g --parallel=4 big > /dev/null
+real 55.85
+user 190.70
+sys 0.47
+
+time -p sort -g --parallel=8 big > /dev/null
+real 35.05
+user 195.03
+sys 0.60
+
+We see that the general sort and the sort with parallel=8 have around the 
+same execution (real) time while the other number of threads have it a
+lot slower. There seems to exist no pattern with the user time but we notice
+they all stay within 180-220 seconds. We notice the system time increases
+as the number of threads increases because the more threads call more syscalls
+than fewer threads. This leads us to believe that the default sort as
+far as coreutils 8.6 and higher is concerned is multithreaded to the maximum
+number of processors available but capped at 8. That is why the general sort
+and the 8-threaded sort have similar run times.

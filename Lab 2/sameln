@@ -1,0 +1,48 @@
+#!/bin/bash
+
+dir=$1 #Get the first argument
+RESULT=`ls -a $dir | sort` #Sort the files lexicographically based on the locale
+IFS=$'\n' #Set the delimeter as new line so files with spaces are recognized
+declare -a DOTSARRAY #Array to initially hold files beginning with .
+declare -a OTHERARRAY #Array to hold every other regular file
+let dotCount=0 #Count for the DOTSARRAY
+let count=0 #Count for OTHERARRAY
+for FILE in $RESULT #Loop through the output of the ls command
+do
+    if [ ! -r "$dir/$FILE" ] #If the file has no read permissions, throw error
+    then
+	  echo "You do not have permissions for the file $dir/$FILE"
+    fi
+    if [[ ! -L "$dir/$FILE" && -r "$dir/$FILE" ]] #Make sure file is not symbolic and readable
+    then
+	  if [ -f "$dir/$FILE" ] #Make sure it is a regular file
+	  then
+	    if [ "${FILE:0:1}" == "." ] #If the file begins with a . store in DOTSARRAY
+	    then
+		  DOTSARRAY[$dotCount]="$dir/$FILE"
+		  let dotCount=dotCount+1
+	    else
+		  OTHERARRAY[$count]="$dir/$FILE" #Else store in OTHERARRAY
+		  let count=count+1
+	    fi
+	  fi
+    fi
+done
+DOTSARRAY=("${DOTSARRAY[@]}" "${OTHERARRAY[@]}") #Concatenate two arrays so all . files are at the beginning and the others are behind it sorted lexicographically according to locale
+let count=${#DOTSARRAY[@]} #Let the overall count be the size of the concatenated array
+exec 2>/dev/null
+for (( i=0; i<$count; i++ )) #We have two nested for loops to compare each element with all the elements in the array
+do
+    for (( j=$i+1; j<$count; j++ ))
+    do
+	  if [[ -s "${DOTSARRAY[$i]}" && -s "${DOTSARRAY[$j]}" || ! -s "${DOTSARRAY[$i]}" && ! -s "${DOTSARRAY[$j]}" ]] #If the files are both empty or both not empty
+	  then
+		compare=$(cmp -s -- "${DOTSARRAY[$i]}" "${DOTSARRAY[$j]}") #Compare the files including special characters and store in compare
+		  if [ ! $compare ] #If the comparison returns exit code 0 (no difference)
+		  then
+	        ln -f -- "${DOTSARRAY[$i]}" "${DOTSARRAY[$j]}" #Create a hardlink to the higher precedence file with the same name and deletes it
+		  fi
+	  fi
+     done
+done
+

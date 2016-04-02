@@ -1,0 +1,26 @@
+#!/bin/bash
+
+grep '<td>.\{1,\}<\/td>' | \
+sed -n '1~2!p' - | \
+tr "A-Z\`" "a-z\'" | \
+sed 's/<td>//g;s/<\/td>//g;s/<u>//g;s/<\/u>//g' | \
+sed "s/^\s*//g" | \
+sed -E "s/,\s|\s/\n/g" | \
+grep "^[pk\' mnwlhaeiou]\{1,\}$" | \
+sort -u
+
+#Name: Jahan Kuruvilla Cherian
+#UID: 104436427
+#Email: jcherian@ucla.edu
+#TA: Lauren Samy
+#Prof: Eggert
+#File: buildwords - bash script to create a Hawaiian dictionary
+#Comments Per Line
+#Take everything between the <td> <\td> tags.
+#Only take every other line from the first line (start from 1 with step 2), which will isolate only the Hawaiian words
+#Replace every capital letter and ASCII grave character ` with lowercase letters and the ' character respectively
+#Remove all the tagged elements such as <td> </td> <u> and </u>
+#Remove all the spaces from the beginning of the line for any number of spaces
+#Replace anything that is a ,\s (comma followed by a space) OR a space, with a new line
+#Only output everything that conforms to Hawaiian language from the beginning of a line to the end of a line
+#Sort everything according to 'C' locale while also deleting any duplicates

@@ -1,0 +1,41 @@
+Name: Jahan Kuruvilla Cherian
+UID: 104436427
+Email: jcherian@ucla.edu
+TA: Lauren Samy
+Prof: Eggert
+File: hw3.txt - Answers to the questions defined in the specification.
+
+1.) We notice that the line case_long_iso_time_style: because of two reasons.
+The first is that this line is repeated twice, and the second is that its
+a goto statement in a switch statement. Because it is part of a switch 
+statement, it was not necessary to remove it as it would have just
+fallen through to the second case_long_iso_time_style: but it was an attempt
+to clean up messy code.
+
+2.) The new patched version of the coreutils-7.6 assumes the reader is
+accustomed to reading the date in English, which may not be the case if my
+company was to be working with international clients/colleagues and so may
+create an aura of confusion due to the timestamp format. The issue also arises
+that if there were programs written specific to a timestamp format - namely
+the non patched version - then the patch may produce undesirable results when
+running these programs.
+
+3.) The file /dev/null is basically an empty file. Since the randline.py
+script tries to read from the file and index the elements in the file,
+it assumes the file has something in it. Thus when running the command:
+python randline.py /dev/null we get the following:
+File "/usr/local/cs/Python-2.7.10/lib/python2.7/random.py", line 275, in choice
+    return seq[int(self.random() * len(seq))]  # raises IndexError if seq is 
+    empty
+    IndexError: list index out of range
+Because the seq is empty we get the index error.
+
+4.) Python3 deprecated automatic tuple unpacking, and so the parameter
+(errno, strerror) passed in an exception gives an error as this is a tuple.
+  File "randline.py", line 65
+    except IOError as (errno, strerror):
+                      ^
+SyntaxError: invalid syntax
+
+A fix for this would be to pass in a single parameter instead and then 
+reference the multiple arguments.

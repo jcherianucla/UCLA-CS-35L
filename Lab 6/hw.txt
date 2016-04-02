@@ -1,0 +1,52 @@
+Name: Jahan Kuruvilla Cherian
+UID: 104436427
+Email: jcherian@ucla.edu
+Professor: Eggert
+TA: Lauren Samy
+File - hw.txt - Answers to the two questions according to the specification.
+
+1.) If we are sending data over the network using ssh, the data is safe from
+anyone snooping, since the messages will first be encrypted through an 
+authentication process using the receiver's public key which a snooper will
+be able to see, but can only be decrypted by the receivers private key which is
+not available over the network. The data after the authentication stage will be
+encrypted using a session key the server and client agree on based on the
+public/private key used for the authentication. Since the other team wouldn't
+have been able to decrypt the authentication stage, they won't be able to
+decrypt the session, and so the data remains secure.
+
+If however, the other team had access to the keyboard taps made during the
+authentication stage, then the data would no longer be secure as they would
+have access to the passphrase acting as the authentication private key and so
+they would be able to decrypt all the data during the session as well as they
+would be able to generate a session key from the passphrase they got from the
+keyboard taps. The only way to prevent such an attack would be to make sure
+the keyboard you're using prior to authentication with the server is itself
+secure.
+
+If the other team had prior access to the USB used to boot the environment up,
+then the exchange is once again not secure as they could have made themselves
+the root of the bootable environment which will give them all access to the 
+.ssh folders set up in the servers, from which they gain access to all the
+public and private keys used to set up authentication and session keys, and
+so could decrypt and encrypt messages between you and the server at their own
+will.
+
+2.) gpg --verify does not really verify the original owner/sender of the
+file as all it does is compare the cleartext signature once decrypted to the 
+decrypted data using a public key. This is easy to intercept and change as
+illustrated in the following example. Let us assume we have 2 users that wish
+to exchange information. John is the creator of the file, and Sara is the 
+receiver of the file. Omar is the man in the middle who wishes to intercept
+the file and change its content. John signs the data and uses some hash
+function to encrypt the data and begins to send the data. Omar intercepts the
+file, and begins to change the data. He then signs it himself, and along with
+sending the data, he sends his public key instead of John's to Sara. In this 
+scenario, gpg --verify will simply use this public key to decrypt the data
+and compare it to the signature, which will in this case reveal Omar as the
+sender of the file. In no way has it maintained and verified who the original 
+author of the data was.
+A solution to such a problem which is widely used nowadays is to trust in 
+well organized third party company/organization that keeps a track of the 
+origin point of the file with its Author. This way - as long as have trust in
+this third party organization - the verification will always be correct.

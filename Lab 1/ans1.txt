@@ -1,0 +1,63 @@
+Name: Jahan Kuruvilla Cherian
+UID: 104436427
+TA: Lauren Samy
+Prof: Paul Eggert
+Lab Assignment #1
+File: ans1.txt
+
+Laboratory: Linux and Emacs scavenger hunt
+
+1.) We type in man -k keyword where the keyword is the specific word we want to search for. The answer was found by using the hint and going into the man page for man and then searching for the word description.
+
+2.) We can find the locations of commands by using the which command. So using which cp we get /usr/local/cs/bin/cp and which wc /usr/local/cs/bin/wc
+
+3.) We can find the one character commands by doing find /usr/bin -name "?" we get the commands as follows, and their explanations can be found using the man pages or help.
+: - No effect; the command does nothing beyond expanding argu‐
+              ments  and  performing any specified redirections.  A zero
+              exit code is returned.
+. - Execute commands from a file in the current shell.
+[ - Evaluate conditional expression.
+w - Show who is logged on and what they are doing.
+
+Note that we also got the location of 'X' but using ls -l we notice this is not a command but rather a symbolic link to the command X.Org.
+
+4.) We first go into the /usr/bin folder and then we ls -l | grep emacs to see the files pertaining to emacs. We see the symbolic link linking to the file /etc/alternatives/emacs.
+
+5.) As explained in discussion g stands for user/groups, and so g+s gives the person accessing the file the permission of a group for that file. o stands for other and so o-x removes the executable permission for others for the specified files.
+
+6.) The option -ctime -21 will give us the files modified in the last 3 weeks. This can be found using the man page for find and searching for -ctime where we see that option requires a number n such that n*24 hours is the extent to which find will look back.
+
+7.) We use the following command find / -type d -ctime -21, where we are finding directories from the root that have been modified -21*24 hours ago which evaluates to 3 weeks ago.
+
+8.) 287 symbolic links in the same directory as find. This was found using the following command: ls -l | grep ^l | wc. This essentially pushes the long listing with only the start as 'l' (using the grep command and the regex ^) which denotes a symblic link and then piping that into wc to count the number of lines which is equal to the number of links.
+
+9.) We can find the oldest regular file by using the -lt which will sort by the modification time with the newest first. In order to get only the regular files we must look for the start of the long listing with a - and so we use the following command: ls -lt | grep ^- This then gives us the result: libfreeblpriv3.so as the oldest regular file. This was all found out using the man page for ls and searching for time, and the prior knowledge of the command grep and regex's.
+
+10.) We use the man page for locale and notice that it data is determined by the settings of the environment variables defined in the Base Definitions volume of IEEE Std 1003.1-2001, Chapter 7, Locale.
+
+11.) We can find the commands in emacs using C-h a and searching for the keyword (as stated on the cheat sheet for emacs). Using this we find the following commands with sort in their names:
+Buffer-menu-sort
+sort-columns
+sort-fields
+sort-lines
+sort-numeric-fields
+sort-pages
+sort-paragraphs
+sort-regexp-fields
+tabulated-list-col-sort
+tabulated-list-sort 
+
+12.) The commands can be found using C-h b and then doing a search C-s "C-M-a" and then going through the different commands.
+C-M-a beginning-of-defun: Move backward to the beginning of a defun.
+C-M-b backward-sexp: Move backward across one balanced expression (sexp).
+C-M-c exit-recursive-edit: Exit from the innermost recursive edit or minibuffer.
+C-M-d down-list: Move forward down one level of parentheses.
+C-M-e end-of-defun: Move forward to next end of defun.
+C-M-f forward-sexp: Move forward across one balanced expression (sexp).
+C-M-h mark-defun: Put mark at end of this defun, point at beginning.
+
+13.) Based on the key bindings found using C-h-b and then searching for C-g using C-s "C-g" we enter the defintion of this command and see that it signals a quit. During execution of Lisp code, this character causes a quit directly.
+
+14.) Based on the documentation for yank (found using C-h-b "yank") we see that yank essentially pastes the last stretch of text that was killed.
+
+15.) The only noticeable difference is that the dired command in emacs also gives us the current and parent directory in the long listing of files and directories, while ls -l doesn't.

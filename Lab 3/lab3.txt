@@ -1,0 +1,127 @@
+Name: Jahan Kuruvilla Cherian
+UID: 104436427
+Email: jcherian@ucla.edu
+TA: Lauren Samy
+Prof: Eggert
+File: lab3.txt - A recording of the commands/steps I used/took to complete
+the lab and an explanation on why these steps/commands were used.
+
+I start the lab off by first logging into the Seasnet Linux 09 server
+and using the wget command to download the Coreutils 7.6 package.
+I went into my directory that I created for this lab and used the 
+following commands to download the package and untar it.
+
+wget ftp://ftp.gnu.org/gnu/coreutils/coreutils-7.6.tar.gz
+tar -xzvf coreutils-7.6.tar.gz
+
+We then enter the coreutils-7.6 directory and briefly read the --prefix
+section in the INSTALL file. So we run the following command to configure
+it to our coreutilsInstall directory in the home directory.
+
+./configure --prefix=/u/cs/ugrad/jahan/coreutilsInstall
+
+And then use the following commands to install the package in our 
+coureutilsInstall directory
+
+make
+make install
+
+We then enter cd ~/coreutilsInstall/bin
+and then run ./ls command under the en_US.UTF-8 locale to see the broken
+ls.
+
+After noticing the issue with th ls command in coreutils 7.6, we begin to 
+patch the issue up. We do this by cd'ing back into coreutils-7.6
+directory and creating a file called patch_file with the copied and
+pasted text from Brady's patch. We then run the following command within
+the current directory:
+patch -p1 < patch_file
+
+And we then finally run the make command. Now we see that the ls command in
+the coreutils-7.6/src/ directory follows the behaviour of displaying the
+timestamp Month-Date-Year/Hour instead of Year-Month-Date.
+
+The following is the output we get from running make after applying the
+patch. Essentially we notice that there are much fewer files being
+compiled again as compared to the original make command. We see fewer
+leaving/entering commands.
+
+ll-recursive
+make[1]: Entering directory '/w/home.02/cs/ugrad/jahan/CS_35_L/Lab_3/coreutils-7.6'
+Making all in lib
+make[2]: Entering directory '/w/home.02/cs/ugrad/jahan/CS_35_L/Lab_3/coreutils-7.6/lib'
+make  all-recursive
+make[3]: Entering directory '/w/home.02/cs/ugrad/jahan/CS_35_L/Lab_3/coreutils-7.6/lib'
+make[4]: Entering directory '/w/home.02/cs/ugrad/jahan/CS_35_L/Lab_3/coreutils-7.6/lib'
+make[4]: Leaving directory '/w/home.02/cs/ugrad/jahan/CS_35_L/Lab_3/coreutils-7.6/lib'
+make[3]: Leaving directory '/w/home.02/cs/ugrad/jahan/CS_35_L/Lab_3/coreutils-7.6/lib'
+make[2]: Leaving directory '/w/home.02/cs/ugrad/jahan/CS_35_L/Lab_3/coreutils-7.6/lib'
+Making all in src
+make[2]: Entering directory '/w/home.02/cs/ugrad/jahan/CS_35_L/Lab_3/coreutils-7.6/src'
+make  all-am
+make[3]: Entering directory '/w/home.02/cs/ugrad/jahan/CS_35_L/Lab_3/coreutils-7.6/src'
+  CC     ls.o
+  CCLD   dir
+  CCLD   vdir
+  CCLD   ls
+make[3]: Leaving directory '/w/home.02/cs/ugrad/jahan/CS_35_L/Lab_3/coreutils-7.6/src'
+make[2]: Leaving directory '/w/home.02/cs/ugrad/jahan/CS_35_L/Lab_3/coreutils-7.6/src'
+Making all in doc
+make[2]: Entering directory '/w/home.02/cs/ugrad/jahan/CS_35_L/Lab_3/coreutils-7.6/doc'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/w/home.02/cs/ugrad/jahan/CS_35_L/Lab_3/coreutils-7.6/doc'
+Making all in man
+make[2]: Entering directory '/w/home.02/cs/ugrad/jahan/CS_35_L/Lab_3/coreutils-7.6/man'
+  GEN    dir.1
+  GEN    vdir.1
+  GEN    ls.1
+make[2]: Leaving directory '/w/home.02/cs/ugrad/jahan/CS_35_L/Lab_3/coreutils-7.6/man'
+Making all in po
+make[2]: Entering directory '/w/home.02/cs/ugrad/jahan/CS_35_L/Lab_3/coreutils-7.6/po'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/w/home.02/cs/ugrad/jahan/CS_35_L/Lab_3/coreutils-7.6/po'
+Making all in tests
+make[2]: Entering directory '/w/home.02/cs/ugrad/jahan/CS_35_L/Lab_3/coreutils-7.6/tests'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/w/home.02/cs/ugrad/jahan/CS_35_L/Lab_3/coreutils-7.6/tests'
+Making all in gnulib-tests
+make[2]: Entering directory '/w/home.02/cs/ugrad/jahan/CS_35_L/Lab_3/coreutils-7.6/gnulib-tests'
+make  all-recursive
+make[3]: Entering directory '/w/home.02/cs/ugrad/jahan/CS_35_L/Lab_3/coreutils-7.6/gnulib-tests'
+make[4]: Entering directory '/w/home.02/cs/ugrad/jahan/CS_35_L/Lab_3/coreutils-7.6/gnulib-tests'
+make[4]: Nothing to be done for 'all-am'.
+make[4]: Leaving directory '/w/home.02/cs/ugrad/jahan/CS_35_L/Lab_3/coreutils-7.6/gnulib-tests'
+make[3]: Leaving directory '/w/home.02/cs/ugrad/jahan/CS_35_L/Lab_3/coreutils-7.6/gnulib-tests'
+make[2]: Leaving directory '/w/home.02/cs/ugrad/jahan/CS_35_L/Lab_3/coreutils-7.6/gnulib-tests'
+make[2]: Entering directory '/w/home.02/cs/ugrad/jahan/CS_35_L/Lab_3/coreutils-7.6'
+make[2]: Nothing to be done for 'all-am'.
+make[2]: Leaving directory '/w/home.02/cs/ugrad/jahan/CS_35_L/Lab_3/coreutils-7.6'
+make[1]: Leaving directory '/w/home.02/cs/ugrad/jahan/CS_35_L/Lab_3/coreutils-7.6'
+
+The make all-recursive command checks through all the relevant directories
+within the coreutils-7.6 (where we applied the patch) to see if based on the
+Makefile there was any change in the relevant source files after the patch
+and finds that the only change to make was in the src folder.
+
+What we essentially did after applying the patch was to recompile only the
+selected files that had been modified from the original.Note that we only make
+the patch and not install it because this way we have the broken version of ls
+in the coretutilsInstall/bin folder and the fixed version in the coreutils-7.6/src
+folder.
+
+We are then able to test the result out on the fixed and broken versions as
+follows:
+touch -t 8901241220 old
+touch new
+
+Note that the first touch command created a file from 24th Jan, 1989.
+We then run the following for the broken ls and the other for the patched:
+~/coreutilsInstall/bin/ls -l
+-rw-r--r--  1 jahan csugrad        0 2016-01-24 12:21 new
+-rw-r--r--  1 jahan csugrad        0 1989-01-24 12:20 old
+
+./coreutils-7.6/src/ls -l
+-rw-r--r--  1 jahan csugrad        0 Jan 24 12:21 new
+-rw-r--r--  1 jahan csugrad        0 Jan 24  1989 old
+
+

@@ -1,0 +1,167 @@
+Name: Jahan Kuruvilla Cherian
+UID: 104436427
+Email: jcherian@ucla.edu
+TA: Lauren Samy
+Prof: Eggert
+File: lab2.log - A recording of the key commands and events that I
+wrote down/did throughout this lab to accomplish this task with a
+brief explanation of why.
+
+We start off by logging into the seasnet server and checking whether our 
+locale is correctly configured by typing in the command locale.
+We notice that it is currently set to the default of 'en-US' and so we 
+change it to 'C' with the command export LC_ALL='C'.
+
+We then run a sort on the dictionary on the linux server and redirect that into a
+file called words. The command I used to do this was:
+sort /usr/share/dict/words > words
+
+We then get the contents of the assignment page website by using the wget
+which creates an html file which we then convert to a standard text file
+with the mv command as follows:
+wget http://web.cs.ucla.edu/classes/winter16/cs35L/assign/assign2.html
+mv assign2.html assign2.txt
+
+We then run the command tr -c 'A-Za-z' '[\n*]' < assign2.txt which basically
+outputs each word of the file with a bunch of newline characters between
+them. The reason this happens is because the tr command with the -c option
+will take the complement of the first set, which in this case is every 
+letter (upper case and lower case), and so the complement of that is every
+non letter character and we replace that with a new line character for as
+many non letter characters there exists in that line. So in some 
+instances we'll have more newline characters for some words more than others
+because they contained more non letter characters than others.
+
+Running the next command tr -cs 'A-Za-z' '[\n*]' < assign2.txt which
+outputs each word of the file on a newline. This command is essentially 
+doing the same thing as the command we ran before but the -s option 
+"squeezes" everything after the output of the command tr -c 'A-Za-z' '[\n*]
+so that all the new line characters that corresponded to the number of non
+letter characters in the HTML from before are basically deleted.
+
+We then run the third command as instructed but be careful to do it in the
+following way:
+tr -cs 'A-Za-z' '[\n*]' < assign2.txt | sort
+We do it in this way because the tr command needs something to operate on
+before being piped into the sort command otherwise, we're going to get 
+something different to what we'd want. What this command is essentially 
+doing is first adding a newline character for every non letter character
+(because of the -c option) as it did with the first command we ran, and
+then squezzes everything (with the -s option), thus removing all the extra
+new line characters as in the second command and then pipes it into the sort
+command which thus sorts all these words on newlines as per the ASCII 
+standard as defined by the 'C' locale. Thus we get letters or words on 
+newlines from the HTML document in sorted order.
+
+Just as before we take care in putting the assign2.txt as the standard input
+in the correct location. We thus run the following command:
+tr -cs 'A-Za-z' '[\n*]' < assign2.txt | sort -u
+This will do the same thing as the previous command we ran without the
+-u option on the sort. This extra -u option makes the output of the sort
+command unique in the sense that it will delete all duplicate characters. 
+Thus we see the individual words from the sorted HTML file per line without
+any duplicates.
+
+For the fifth command instructed to run we type in the following command:
+tr -cs 'A-Za-z' '[\n*]' < assign2.txt | sort -u | comm - words
+What this does is compare the result from standard input (which is what
+the '-' after comm stands for) with the result of words, line by line, and
+notice an output into three columns. The first column lists everything unique
+to the standard input - which in this case is the sorted non duplicated words
+from the HTML file on a new line - while the second column lists everything
+unique to the words file and the third column lists what is similar in both.
+We notice that the output is noticeably more intensive on the second columns
+since the words in the words dictionary have more content.
+
+For the last command instructed to run we type in the following command:
+tr -cs 'A-Za-z' '[\n*]' < assign2.txt | sort -u | comm -23 - words
+Similar to the previous command, except with the -23 option we are
+suppressing the second and third columns from the comm command and as
+such are seeing the sorted words from the standard input unique to the
+standard input.
+
+After answering these questions, we turn to doing the lab. The first 
+instruction we run is to download the english to hawaiian table listed in
+the assignment with the following command:
+wget http://mauimapp.com/moolelo/hwnwdseng.htm
+
+We do this so we can reference from the webpage and make changes to see 
+if the buildwords script worked in extracting the Hawaiian words as 
+described in the specification. I started by first understanding the various
+characters and their meanings with regex and focused on using three key 
+commands - grep (to search and select what I wanted), sed (to search and
+replace) and tr (to do certain quick translations such as upper to lower).
+
+The first part of the script:
+grep '<td>.\{1,\}<\/td>' | \
+
+Grabs everything in between the <td> and </td> tags and pipes it into the
+following command:
+sed -n '1~2!p' - | \
+
+This command will start from the first line of the file and delete every-
+thing by a step factor of 2 (which is essentially getting rid of all the 
+English words and leaving only the Hawaiian words). The next command:
+tr "A-Z\`" "a-z\'" | \
+
+Translated all upper case to lower case and converted every ` character to
+a ' character. The next command:
+sed 's/<td>//g;s/<\/td>//g;s/<u>//g;s/<\/u>//g' | \
+
+Searched for all the remaining tags and replaced them with nothing, 
+essentially deleting them.
+sed "s/^\s*//g" | \
+
+The above command then deleted all the leading spaces in the file.
+sed -E "s/,\s|\s/\n/g" | \
+
+I then search for any commas and spaces or spaces in general and replaced
+them with a newline as stated by the specification - "contain spaces or
+commas; treat them as multiple words".
+grep "^[pk\' mnwlhaeiou]\{1,\}$" | \
+
+We then make sure to extract only valid Hawaiian characters in case 
+any English characters remained. We finally sort the output using
+the final command:
+sort -u
+
+Note that for the buildwords script we never use any file in particular
+but expect for input from STDIN and we output to STDOUT.
+We then change the permission for the executable for buildwords:
+chmod u+x buildwords
+I then proceed to run the buildwords script with the web page initially
+downloaded as the STDIN and a file hwords as the STDOUT as follows:
+./buildwords < hwnwdseng.htm > hwords
+
+From this point on we run the following commands with the numbers below
+representing the number of words that are "misspelled":
+
+tr 'PKMNWLHAEIOU' 'pkmnwlhaeiou' < assign2.html | \
+tr -cs "pk\'mnwlhaeiou" '[\n*]' | sort -u | comm -23 - hwords | \
+wc -l
+198 - The command above downloads the assignment webpage, makes all the 
+Haiwaiian letters in the text lower case and then puts a newline for everything
+that isnt hawaiian letters, sorts it removing duplicates and then compares
+it with our hwords dictionary, to see the number of misspelled words in English
+in comparison the Hawaiian on the webpage.
+tr -cs 'A-Za-z' '[\n*]' < assign2.html | sort -u | comm -23 - words | \
+wc -l
+81 - The command above downloads the assignment webpage and sees how many words
+from the webpage were not in the regular English dictionary.
+comm -23 web2Eng.txt web2Haw.txt | wc -l 
+75 - We then use the two lists gathered above to see the number of mispelled
+words as English. Some examples are:
+cmp
+CTYPE
+basedefs
+eggert
+halau
+
+comm -13 web2Eng.txt web2Haw.txt | wc -l 
+192 - We use the two lists gathered above to see the number of mispelled words
+as Hawaiian. Some examples are:
+ollowin
+onlinepu
+linu
+pellin
+uppo

@@ -1,0 +1,181 @@
+Name: Jahan Kuruvilla Cherian
+UID: 1044364427
+Email: jcherian@ucla.edu
+TA: Lauren Samy
+Prof: Eggert
+File - lab4.txt - A description of what I did throughout the lab, stating the
+commands I ran with the reasons as to why I ran these commands with respect to
+the specification.
+
+We first start by cloning the diffutils repository by running the following
+command in my personal CS_35_L/Lab_4/ directory:
+
+git clone git://git.savannah.gnu.org/diffutils.git
+
+We then redirect the output of the log of the different commits for the
+diffutils folder into a text file called git-log.txt using the following
+command:
+
+git log > git-log.txt
+
+Similarly we create a file of the tags in a file called git-tags.txt with
+the following command:
+
+git tag > git-tags.txt
+
+We then open the git-log.txt using a text editor like vim or emacs and search
+for the text /maint: quote 'like this' or "like this", not `like this'
+
+We extract the commit ID by copying it to the computer's clipboard and then
+we begin exploring the man pages for git. We find the command git show.
+We then run the following command to generate the patch_file:
+
+git show 62ca21c8c1a5aa3488589dcb191a4ef04ae9ed4f > quote_patch.txt
+
+We then finally apply the patch while within diffutils folder with the 
+following command:
+
+patch -p1 < quote-patch.txt
+
+We then move the HEAD to a previous commit by the tag v3.0 and we do this by
+running the following command:
+
+git checkout v3.0
+
+Now that we're in the diffutils v3.0, we apply the patch from quote-patch.txt
+using the following, while still in the diffutils folder (which is why we
+use -p1):
+
+patch -p1 < quote-patch.txt
+
+We hit a few errors along the way and continue along hitting RETURN each time
+until we get the following output at the end:
+
+Hunk #1 succeeded at 84 (offset -1 lines).
+Hunk #2 succeeded at 125 (offset -1 lines).
+Hunk #3 succeeded at 154 (offset -1 lines).
+Hunk #4 succeeded at 234 (offset -1 lines).
+patching file src/ifdef.c
+patching file src/io.c
+patching file src/sdiff.c
+Hunk #2 succeeded at 92 (offset 1 line).
+Hunk #3 succeeded at 175 (offset 23 lines).
+Hunk #4 succeeded at 230 (offset 17 lines).
+Hunk #5 succeeded at 286 (offset 17 lines).
+Hunk #6 succeeded at 572 (offset 13 lines).
+Hunk #7 succeeded at 747 (offset 41 lines).
+patching file src/side.c
+patching file src/system.h
+Hunk #2 succeeded at 105 (offset 6 lines).
+patching file src/util.c
+Hunk #4 succeeded at 190 with fuzz 2.
+Hunk #8 succeeded at 650 (offset -27 lines).
+patching file tests/help-version
+Hunk #1 succeeded at 75 (offset 1 line).
+Hunk #2 succeeded at 85 (offset 1 line).
+Hunk #3 succeeded at 96 (offset 1 line).
+Hunk #4 succeeded at 108 (offset 1 line).
+Hunk #5 succeeded at 140 (offset 1 line).
+Hunk #6 succeeded at 188 (offset 1 line).
+
+We then run the command git status to make sure that our patch was
+applied correctly and get the following output for the changes:
+
+# HEAD detached at v3.0
+# Changes not staged for commit:
+#   (use "git add <file>..." to update what will be committed)
+#   (use "git checkout -- <file>..." to discard changes in working directory)
+#
+#	modified:   NEWS
+#	modified:   README
+#	modified:   TODO
+#	modified:   doc/diagmeet.note
+#	modified:   ms/config.bat
+#	modified:   ms/config.site
+#	modified:   po/en.po
+#	modified:   src/analyze.c
+#	modified:   src/cmp.c
+#	modified:   src/context.c
+#	modified:   src/diff.c
+#	modified:   src/diff.h
+#	modified:   src/diff3.c
+#	modified:   src/dir.c
+#	modified:   src/ifdef.c
+#	modified:   src/io.c
+#	modified:   src/sdiff.c
+#	modified:   src/side.c
+#	modified:   src/system.h
+#	modified:   src/util.c
+#	modified:   tests/help-version
+
+So we begin the next process by opening each of these modified files in emacs
+and use vc-diff, vc-revert and diff-apply-hunk.
+For all the files that don't have a .c extension, we just open them using
+vc-diff (C-x v =) and then apply the vc-revert (C-x v u)
+For all the files that do have a .c extension we go through the diff file
+and apply diff-apply-hunk by going to the relevant hunks that are basically
+constant C-strings (comments) and use C-u C-c C-a to undo the hunk. We manually
+go through all the .c files and apply the changes as necessary, taking care
+not to change any of the patched source code.
+
+Finally we look at the rejected patch files and notices that two exist in the
+form diff3.c.rej and diff.c.rej. The hunks got rejected because they couldnt
+find the necessary lines to replace, and so for this section for the lab we
+have to manually replace the line based off of intuition. We notice that we
+essentially replace the grave accent with the apostrophe.
+
+Since at no point do we need the untracked files, we remove them by using
+git clean -f to force remove all the untracked files. Doing a git status at 
+this point reveals that we have half a dozen modified files as follows:
+#	modified:   src/cmp.c
+#	modified:   src/diff.c
+#	modified:   src/diff3.c
+#	modified:   src/dir.c
+#	modified:   src/sdiff.c
+#	modified:   src/util.c
+
+We then generate a new patch file with the modified contents in diffutils
+and so we generate the file with the following command:
+
+git diff > quote-3.0-patch.txt
+
+And we notice that we have 326 lines in this files which contains purely
+source code which seems around correct.
+
+Because lnxsrv09 doesnt support the gets command, we switch to a different
+lnxsrv that is older and run the following commands as according to the
+README-hacking:
+./bootstrap
+./configure
+make
+make check
+
+What the lines above essentially did was to create an executable out of our
+modified diff. We then test this new modified diff running the following
+commands:
+
+diff . -
+diff --help
+
+And we notice that all the output uses '' instead of `` which shows that our
+patch worked. As a sanity check we have to compare this to the old version
+of Diffutils-3.0. We do this by first taking a copy of our src/ folder in 
+the current branch of Diffutils-3.0 which contains are modified diff
+executable and then we add, commit as a new branch called patch and then 
+checkout to v3.0 where all executable is now back to the old version. We
+confirm we are in the right branch by doing a git log and noting no commits
+that we had added. We copy this src/ folder as well and then run the following
+command:
+
+diffutils-3.0-patch/diff -pru diffutils-3.0 diffutils-3.0-patch/ > \
+quote-3.0-test.txt
+
+Running the following command:
+
+diff quote-3.0-test.txt quote-3.0-patch.txt
+
+Shows us the differences and we notice that all the differences are to do
+with the '' and `` characters which has no effect on the actual behaviour
+of diff and so is not harmful (it is innocous).
+
+We conclude that the patch was a success.

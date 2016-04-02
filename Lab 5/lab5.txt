@@ -1,0 +1,126 @@
+Name: Jahan Kuruvilla Cherian
+UID: 104436427
+Email: jcherian@ucla.edu
+Professor: Eggert
+TA: Lauren Samy
+File - lab5.txt - A description of the commands used in this lab and the 
+explanation of why they were used as per the specification.
+
+We start by logging into our linux server (09) and then using the wget command
+to download the old version of coreutils with the following command:
+
+wget http://web.cs.ucla.edu/classes/winter16/cs35L/assign/
+coreutils-with-bug.tar.gz 
+
+tar -zxvf coreutils-with-bug-tar.gz
+
+We cd into this coreutils-with-bugs directory and then configure and make
+it using the following set of commands:
+./configure
+make
+
+We get the following error during the make procsess:
+In file included from utimecmp.c:41:0:
+utimens.h:2:5: error: conflicting types for 'futimens'
+ int futimens (int, char const *, struct timespec const [2]);
+     ^
+In file included from utimecmp.h:25:0,
+                 from utimecmp.c:25:
+/usr/include/sys/stat.h:373:12: note: previous declaration of 'futimens' was here
+ extern int futimens (int __fd, const struct timespec __times[2]) __THROW;
+            ^
+We go about fixing this by downloading the renaming patch using wget as follows:
+wget http://web.cs.ucla.edu/classes/winter16/cs35L/assign/coreutils.diff
+
+Move this into the coreutils-with-bug folder and apply the patch and remake
+the file to see if the above error still persists. We use the following
+commands to do so:
+
+patch -p0 < coreutils.diff
+
+The files it ended up patching are as follows:
+patching file lib/utimens.c
+patching file lib/utimens.h
+patching file src/copy.c
+patching file src/tee.c
+patching file src/touch.c
+
+make
+
+We notice that no errors were produced when making the coreutils now because
+the patch fixed the bug.
+
+We then create a temporary directory with the following commands and then
+create 3 files with different dates of creation and then run the broken
+ls from the coreutil-with-bugs/src folder to see the output:
+
+tmp=$(mktemp -d)
+cd $tmp
+touch -d '1918-11-11 11:00 GMT' wwi-armistice
+touch now
+sleep 1
+touch now1
+~/CS_35_L/Lab_5/coreutils-with-bug/src/ls -lt --full-time wwi-armistice now now1
+
+We get the following broken output:
+-rw-r--r-- 1 jahan csugrad 0 1918-11-11 03:00:00.000000000 -0800 wwi-armistice
+-rw-r--r-- 1 jahan csugrad 0 2016-02-03 16:45:12.266975822 -0800 now1
+-rw-r--r-- 1 jahan csugrad 0 2016-02-03 16:45:01.897815457 -0800 now
+
+Where we see wwi-armistice should be the third element not the first.
+
+We thus use gdb to see where the program is breaking. We do this by running
+the following commands while in the $tmp folder:
+
+gdb ~/CS_35_L/Lab_5/coreutils-with-bug/src/ls
+
+Now while in GDB we run the following commands:
+
+(gdb) info functions
+
+Doing this shows us the list of functions in the src folder and while looking
+at ls.c we notice a function called compare_mtime that sounds somewhat
+interesting. We thus set a breakpoint at this functions and then see where we
+go from there.
+
+(gdb) break compare_mtime
+(gdb) list
+(gdb) si
+
+Stepping into the function takes us to timespec.h:49 where we see the
+function 
+timespec_cmp (struct timespec a, struct timespec b)
+{
+    int diff = a.tv_sec - b.tv_sec;
+    return diff ? diff : a.tv_nsec - b.tv_nsec;
+}
+
+From the function we see that this may be the source of the problem.
+The issue is in the line 'int diff = a.tv_sec - b.tv_sec;' where we notice
+the possibility of integer overflow if a.tv_sec is extremely small such that
+it wraps around. So instead based off of the idea that you have to return
+negative, zero and positive if A<B, A == B, A>B respectively.
+
+We then create a diff of this timespec.h (which we have in the new coreutils)
+folder and the timespec.h from the original coreutils with the following
+command:
+
+diff -u coreutils-with-bug/lib/timespec.h coreutils-with-bug-new/lib/timespec.h
+> lab5.diff
+
+We add a changelog entry using C-x 4 a and then append it to the diff files
+using copy paste.
+
+When trying to recreate the problem by using ls -lt in a folder in the home
+directory we get the following output:
+-rw-r--r-- 1 jahan csugrad 0 Dec 17  2054 wwi-armistice
+-rw-r--r-- 1 jahan csugrad 0 Feb  3 21:18 now1
+-rw-r--r-- 1 jahan csugrad 0 Feb  3 21:18 now
+
+The reason we see 2054 is because all timestamps are represented as seconds 
+from the Unix Epoch in 1970 (12 am 1st January). The SEASnet NFS filesystem
+uses unsigned 32-bit time stamps while the Local File System on the Linux
+server uses signed 32-bit time stamps and so we see that any time before the
+Unix Epoch gets added to the Unix Epoch with 64 bit extensions which leads to
+the year 1918 represented as 2054. The way to fix this is by touching on the 
+local file system.

@@ -1,0 +1,74 @@
+Name: Jahan Kuruvilla Cherian
+UID: 1044364427
+Email: jcherian@ucla.edu
+TA: Lauren Samy
+Prof: Eggert
+File - hw4.txt - A description of what I did throughout the homework, stating
+the commands I ran with the reasons as to why I ran these commands with respect
+to the specification.
+
+We start by checking out of the v3.0 directory while creating a new branch
+with the following command:
+git checkout v3.0 -b quote
+
+We then apply the patch that we generated from the lab to this new branch
+in order to remove all the grave accents with the following commands:
+patch -p1 < ../quote-3.0-patch.txt
+
+We use git status to confirm the six C files that are changed and we go
+through all six files using emacs and then using C-x 4 a to create a 
+Changelog for that file and add the relevant messages.
+We then add this and then commit with the Changelog as follows:
+
+git add .
+git commit -F Changelog
+
+We then generate a formatted patch that we use with our partners to make 
+sure the patches work on different systems. My partner was Omar Ozgur.
+We gnerate the patch as follows:
+git format-patch -1 --stdout > formatted-patch.txt
+
+We then checkout from the quote branch and then go into a new branch with
+the same stuff called partner:
+
+git checkout v3.0 -b partner
+
+We then scp from the server to get the file and then send it to my partner
+and download my partner's patch to my server and then run the following
+command:
+
+git am < ../partner-patch.txt
+
+And then run git log to see if my partners patch is applied and get the
+following output:
+
+Author: Omar B Ozgur <ozgur@lnxsrv01.seas.ucla.edu>
+Date:   Fri Jan 29 17:28:44 2016 -0800
+
+    2016-01-29 Omar B Ozgur <ozgur@lnxsrv01.seas.ucla.edu>
+
+        * src/util.c: Changed grave accents to apostrophes
+
+        * src/sdiff.c: Changed grave accents to apostrophes
+
+        * src/dir.c: Changed grave accents to apostrophes
+
+        * src/diff3.c: Changed grave accents to apostrophes
+
+        * src/diff.c: Changed grave accents to apostrophes
+
+        * src/cmp.c: Changed grave accents to apostrophes
+
+We then run the general commands as in the lab but using partners patch:
+./bootstrap
+./configure
+make
+make check
+make distdir
+
+This creates a directory diffutils-3.0.1-63d7 that contains my partners 
+patch and we view the Changelog in this new directory and get the same 
+output as the log confirming partners patch as successful.
+
+We then download X-11 for the mac and then use remote desktop connection
+to run gitk within the downloaded emacs folder. We 

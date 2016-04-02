@@ -1,0 +1,23 @@
+Name: Jahan Kuruvilla Cherian
+UID: 1044364427
+Email: jcherian@ucla.edu
+TA: Lauren Samy
+Prof: Eggert
+File - gitk-decription.txt - A description of what we see in the gitk window
+starting from the top left corner going in a clockwise fashion:
+
+We see a window with the history of the commits in a tree like structure
+with their commit messages. This shows the structure of the repository
+with the position of the HEAD pointer and the different branches.
+
+We then see a list of the authors of the respective commits and their emails.
+
+Then a list of all the dates of the commits that we're looking at.
+
+Below this is the files that are impacted by the selected commit.
+
+To the left of this from bottom up we first see the file changes in diff
+format, above which lies more information about the selected commit with 
+the name of the committer, email, parent, child, branches and the commit
+message. Finally just above this subwindow and below the tree structure
+we have the SHA1 ID of the commit. 

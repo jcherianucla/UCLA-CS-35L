@@ -1,0 +1,94 @@
+Name: Jahan Kuruvilla Cherian
+UID: 104436427
+Email: jcherian@ucla.edu
+Professor: Eggert
+TA: Lauren Samy
+File - log.txt - A file to describe each command I used in the lab and the
+reasons as to why I used them.
+
+For this lab my partner acting as the client/server was Omar Ozgur.
+To start this lab we boot up Ubuntu from a disk image loaded onto a usb.
+We do this so that we can set up a server on our own machines as trying to
+do so on the SEASNet lab will fail as we do not have root access.
+
+We start by making sure we have all the openssh files we need by typing
+the following commands:
+
+dpkg --get-selections | grep openssh
+
+Noticing that we're missing the server package, we download it with the
+following command:
+
+sudo apt-get install openssh-server
+
+I started by being the server and setting up Omar as the client with the
+following set of commands:
+
+ssh-keygen
+
+This command essentially generates and authenticates RSA keys for SSH 
+connection 2 for when someone tries to ssh into the server's I host.
+I set no password for this key.
+
+sudo useradd -d /home/omar/ -m omar
+
+This creates a directory named omar within the home directory and adds the
+user with username omar.
+
+sudo passwd omar
+
+This creates the password for the user omar, I chose to set the password as
+omar as well for convenience.
+
+cd /home/omar
+
+We enter omar's directory and create an ssh directory to store all the 
+information from the RSA keys (public and private) to the hosts. We then
+continue to make the owner omar so that he is able to log into the server
+and add any files/directories he may want to. The following commands were
+used for this setup.
+
+sudo mkdir .ssh
+sudo chown -R omar .ssh
+sudo chmod 700 .ssh
+
+We then grab the IP address with the following command for omar to use it to
+log in to my server.
+
+ifconfig
+
+192.232.123.73
+
+After he has logged in (using similar commands as listed below for when I log
+into his server), we test it out by creating files on each others local
+computers and checking to see that we both can see it, which works.
+
+I then proceed to behave as a client. After Omar sets up his server, we use
+ifconfig to get the IP address and then I type in the following command:
+
+ssh-copy-id -i jahan@169.232.123.100
+
+This basically adds my public key to the ssh folder within the server.
+
+ssh-add
+
+This command in tandem with ssh-agent essentially adds the password required
+to log into the server within the ssh folder so that I never have to type
+in the password again to log into the server.
+
+ssh jahan@169.232.123.100
+
+Enter the server with the IP address that I got from Omar's ifconfig.
+
+touch hello_omar.txt
+
+Add a file to see if it both him and I can see it on the server and indeed
+we can.
+
+ssh -X jahan@169.232.123.100
+
+Log in with the capability to open other programs such as Firefox as tested out
+below.
+
+firefox
+

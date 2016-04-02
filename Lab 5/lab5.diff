@@ -1,0 +1,20 @@
+--- coreutils-with-bug/lib/timespec.h	2005-09-21 23:05:39.000000000 -0700
+2016-02-03  Jahan Kuruvilla Cherian  <jahan@lnxsrv09.seas.ucla.edu>
+
+	* timespec.h (timespec_cmp): We notice overflow in extreme cases of the
+	differences between a and b, and so instead we just simply do direct
+	comparisons and return values as described by the comments.
+
++++ coreutils-with-bug-new/lib/timespec.h	2016-02-03 20:50:59.876420000 -0800
+@@ -45,8 +45,9 @@
+ static inline int
+ timespec_cmp (struct timespec a, struct timespec b)
+ {
+-  int diff = a.tv_sec - b.tv_sec;
+-  return diff ? diff : a.tv_nsec - b.tv_nsec;
++  if(a.tv_sec < b.tv_sec) { return -1;}
++  else if(a.tv_sec > b.tv_sec) { return 1;}
++  else { return 0; }
+ }
+ 
+ # if ! HAVE_DECL_NANOSLEEP

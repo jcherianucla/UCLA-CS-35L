@@ -1,0 +1,13 @@
+#! /bin/bash
+
+`cd /usr/bin`
+`ls /usr/bin | awk 'NR%101==104436427%101' > things.txt`
+IFS=$'\n'
+filename='things.txt'
+result=""
+while read line; do
+  printf '%s:\n'"$line"
+  result=`ldd /usr/bin/$line`
+  printf '%s\n'"$result"
+done < $filename
+

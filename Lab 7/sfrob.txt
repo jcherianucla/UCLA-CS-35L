@@ -1,0 +1,139 @@
+Name: Jahan Kuruvilla Cherian
+UID: 104436427
+Email: jcherian@ucla.edu
+Professor: Eggert
+TA: Lauren Samy
+File - sfrob.txt - A file to describe the results of running the time command
+on sfrob and sfrobu (buffered and unbuffered programs respectively) and sfrobs
+to note the time differences.
+
+We write the line "Hello my name is Jahan." for varying powers of 10 and time it
+and run it with the three versions of sfrob - namely sfrob, sfrobu, sfrobs.
+The results are as shown below:
+
+Number of lines: 10
+time ./sfrob < biggy.txt
+real	0m0.002s
+user	0m0.001s
+sys		0m0.000s
+
+time ./sfrobu < biggy.txt
+real	0m0.002s
+user	0m0.000s
+sys		0m0.001s
+
+time ./sfrobs < biggy.txt
+real	0m0.011s
+user	0m0.004s
+sys		0m0.009s
+
+Number of Lines: 100
+time ./sfrob < biggy.txt
+real	0m0.002s
+user	0m0.002s
+sys		0m0.001s
+
+time ./sfrobu < biggy.txt
+real	0m0.003s
+user	0m0.000s
+sys		0m0.002s
+
+time ./sfrobs < biggy.txt
+real	0m0.009s
+user	0m0.004s
+sys		0m0.004s
+
+Number of Lines: 1000
+time ./sfrob < biggy.txt
+real	0m0.007s
+user	0m0.003s
+sys		0m0.003s
+
+time ./sfrobu < biggy.txt
+real	0m0.007s
+user	0m0.002s
+sys		0m0.004s
+
+time ./sfrobs < biggy.txt
+real	0m0.012s
+user	0m0.007s
+sys		0m0.006s
+
+Number of Lines: 1000
+time ./sfrob < biggy.txt
+real	0m0.055s
+user	0m0.038s
+sys		0m0.013s
+
+time ./sfrobu < biggy.txt
+real	0m0.057s
+user	0m0.016s
+sys		0m0.035s
+
+time ./sfrobs < biggy.txt
+real	0m0.052s
+user	0m0.034s
+sys		0m0.018s
+
+Number of Lines: 10000
+time ./sfrob < biggy.txt
+real	0m1.016s
+user	0m0.369s
+sys		0m0.128s
+
+time ./sfrobu < biggy.txt
+real	0m0.840s
+user	0m0.211s
+sys		0m0.343s
+
+time ./sfrobs < biggy.txt
+real	0m1.033s
+user	0m0.404s
+sys		0m0.084s
+
+Number of Lines: 100000
+time ./sfrob < biggy.txt
+real	0m12.712s
+user	0m4.225s
+sys		0m1.217s
+
+time ./sfrobu < biggy.txt
+real	0m11.278s
+user	0m2.417s
+sys		0m3.321s
+
+time ./sfrobs < biggy.txt
+real	0m12.861s
+user	0m4.379s
+sys		0m0.868s
+
+There are many key things to note about these timings, with the most important
+being the sys times. We notice that in all cases between sfrob and sfrobu, 
+sfrob has a lower sys time because it spends less time in kernel mode due it
+requiring fewer syscalls. The other times seem to be in favour of sfrobu but
+the results are not indicative of the performance with respect to syscalls, and
+maybe lower because less time is spent in user mode in sfrobu as it switches to
+Kernel mode more often for the higher number of syscalls. But we notices that
+the real times are around the same for both versions.
+
+We notice the shell script sfrobs has slower real times (execution times) than
+both sfrob and sfrobu because, its running in bash which is an interpreted
+language (slower) and the piping results in the program taking slightly more time
+to execute commands through continuous streams of input and output.
+
+In terms of the relationship between sfrobu's number of comparisons and the
+number of input lines we observe the following relationship:
+
+Num of Lines	Num of Comparisons
+10				173
+100				2902
+1000			40392
+10000			519571
+100000			6387388
+
+Graphing this we find a linear relationship between the number of lines and
+the number of comparisons. Using the phrase "Hello my name is Jahan." gave us 
+the following relationship:
+number of comparisons = 64.141*(number of lines)
+The linear regression coefficent R^2= 0.99968 which agrees with the linear
+relationship.
